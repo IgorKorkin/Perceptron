@@ -65,9 +65,11 @@ def main():
     url = 'K:\Dropbox\AI\code\iris.data.txt'
     df = pd.read_csv(url, header=None)
     import matplotlib.pyplot as plt
+    from matplotlib import interactive
     y = df.iloc[0:100, 4].values
     y = np.where(y == 'Iris-setosa', -1, 1)
     X = df.iloc[0:100, [0, 2]].values
+    plt.figure(1)
     plt.scatter(X[:50, 0], X[:50, 1],
     color='red', marker='o', label='setosa')
     plt.scatter(X[50:100, 0], X[50:100, 1],
@@ -75,13 +77,16 @@ def main():
     plt.xlabel('petal length')
     plt.ylabel('sepal length')
     plt.legend(loc='upper left')
+    interactive(True)
     plt.show()
 
     ppn = Perceptron(eta=0.1, n_iter=10)
     ppn.fit(X, y)
+    plt.figure(2)
     plt.plot(range(1, len(ppn.errors_) + 1), ppn.errors_,marker='o')
     plt.xlabel('Epochs')
     plt.ylabel('Number of misclassifications')
+    interactive(False)
     plt.show()
 
 main() 
