@@ -1,30 +1,60 @@
+import numpy as np
 
 
-import sys
-from math import sin, cos, radians
+class Perceptron(object):
+    """Perceptron classifier.
 
-import numpy as np     # installed with matplotlib
-import matplotlib.pyplot as plt
-from math import radians
+    Parameters
+    ----------
+    eta: float
+        Learning rate (between 0.0 and 1.0)
+    n_iter: int
+        Passes over the training dataset.
+    Attributes
+    ----------
+    w_: 1d-array
+        Weights after fitting.
+    errors_: list
+        Number of misclassifications in every epoch.
+    """
 
-# Create a string with spaces proportional to a cosine of x in degrees
-def make_dot_string(x):
-    rad = radians(x)                             # cos works with radians
-    numspaces = int(20 * cos(rad) + 20)   # scale to 0-40 spaces
-    str = '|' * numspaces + 'o'                  # place 'o' after the spaces
-    return str
+    def __init__(self, eta=0.01, n_iter=10):
+        self.eta = eta
+        self.n_iter = n_iter
 
-def print_sin():
-    for i in range(0, 1800, 12):
-        s = make_dot_string(i)
-        print(s)
+    def fit(self, X, y):
+        """Fit training data.
 
+        Parameters
+        ----------
+        X: {array-like}, shape = [n_samples, n_features]
+            Training vectors, where n_samples is the number of samples
+            and n_features is the number of features.
+        y: array-like, shape = [n_samples]
+            Target values
 
+        Returns
+        -------
+        self: object
+        """
+        self.w_ = np.zeros(1 + X.shape[1])
+        self.errors_ = []
 
-def main():
-    x = np.arange(0, radians(180), radians(20))
-    plt.plot(x, np.cos(x), 'b')
-    plt.plot(x, x, 'r')
-    plt.show()
+        for _ in range(self.n_iter):
+            errors = 0
+            for xi, target in zip(X, y):
+                # 公式 2 : update = \Delta \mathbf{w}
+                update = self.eta * (target - self.predict(xi))
+                self.w_[1:] += update * xi
+                self.w_[0] += update
+                errors += int(update != 0.0)
+            self.errors_.append(errors)
+        return self
 
-main()
+    def net_input(self, X):
+        """Calculate net input"""
+        return np.dot(X, self.w_[1:]) + self.w_[0]
+
+    def predict(self, X):
+        """Return class label after unit step"""
+        return np.where(self.net_input(X) >= 0.0, 1, -1)
